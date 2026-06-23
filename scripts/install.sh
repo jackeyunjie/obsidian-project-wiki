@@ -147,11 +147,90 @@ else
   echo -e "${RED}  ✗${NC} 未找到 templates/README.md，跳过"
 fi
 
+# ---- 创建 .gitattributes（合并策略） ----
+echo -e "${YELLOW}→ 配置 Git 合并策略...${NC}"
+if [[ ! -f "${TARGET_DIR}/.gitattributes" ]]; then
+  cat > "${TARGET_DIR}/.gitattributes" << 'EOF'
+# Markdown 文件使用 union 合并策略，减少冲突
+*.md merge=union
+EOF
+  echo -e "${GREEN}  ✓${NC} .gitattributes（union 合并策略）"
+fi
+
+# ---- 自动 Git 初始化 ----
+echo ""
+echo -e "${YELLOW}→ 检查 Git 状态...${NC}"
+
+if command -v git &>/dev/null; then
+  # 检查目标目录是否已在 Git 仓库中
+  if git rev-parse --is-inside-work-tree &>/dev/null 2>&1; then
+    REPO_ROOT=$(git rev-parse --show-toplevel)
+    TARGET_ABS=$(cd "${TARGET_DIR}" && pwd)
+    REPO_ABS=$(cd "${REPO_ROOT}" && pwd)
+
+    if [[ "${TARGET_ABS}" == "${REPO_ABS}"* ]]; then
+      echo -e "${GREEN}  ✓${NC} 目标目录位于现有 Git 仓库内：${REPO_ROOT}"
+      echo -e "${YELLOW}  →${NC} 建议运行：git add ${TARGET_DIR} && git commit -m \"feat: init project wiki\""
+    else
+      echo -e "${YELLOW}  →${NC} 目标目录不在当前 Git 仓库内"
+    fi
+  else
+    # 不在 Git 仓库中，询问是否初始化
+    echo -e "${YELLOW}  →${NC} 目标目录不在 Git 仓库中"
+    echo -e "${YELLOW}  →${NC} 建议：cd ${TARGET_DIR} && git init && git add . && git commit -m \"feat: init project wiki\""
+  fi
+else
+  echo -e "${YELLOW}  →${NC} 未检测到 Git，跳过 Git 状态检查"
+fi
+
+# ---- 创建 Makefile（统一命令入口） ----
+echo ""
+echo -e "${YELLOW}→ 创建 Makefile...${NC}"
+if [[ ! -f "${TARGET_DIR}/Makefile" ]]; then
+  cat > "${TARGET_DIR}/Makefile" << EOF
+# Obsidian Project Wiki — 统一命令入口
+# 用法：make <target>
+
+VAULT_DIR := .
+
+.PHONY: help check sync status
+
+help:
+	@echo "Obsidian Project Wiki 命令"
+	@echo ""
+	@echo "  make check    — 运行知识库体检"
+	@echo "  make sync     — 提交并推送 wiki 到 Git"
+	@echo "  make status   — 查看 Git 状态"
+	@echo "  make update   — 运行 raw→wiki 自动整理（需 Agent）"
+
+check:
+	@echo "运行知识库体检..."
+	@if [ -f scripts/check.sh ]; then bash scripts/check.sh \$(VAULT_DIR); else echo "check.sh 不存在"; fi
+
+sync:
+	@echo "同步到 Git..."
+	@if [ -f scripts/sync.sh ]; then bash scripts/sync.sh \$(VAULT_DIR); else echo "sync.sh 不存在"; fi
+
+status:
+	@git status
+
+update:
+	@echo "请使用 Agent 运行整理流程："
+	@echo "  请读取 raw/ 下的新资料，在 wiki/ 下创建来源总结页和概念页"
+EOF
+  echo -e "${GREEN}  ✓${NC} Makefile（统一命令入口）"
+fi
+
 # ---- 完成 ----
 echo ""
-echo -e "${GREEN}${BOLD}初始化完成！${NC}"
+echo -e "${GREEN}${BOLD}╔══════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}${BOLD}║        初始化完成！                          ║${NC}"
+echo -e "${GREEN}${BOLD}╚══════════════════════════════════════════════╝${NC}"
 echo ""
-echo -e "${BOLD}下一步操作：${NC}"
+echo -e "  项目名称：${BOLD}${PROJECT_NAME}${NC}"
+echo -e "  Vault 目录：${BOLD}${TARGET_DIR}${NC}"
+echo ""
+echo -e "${BOLD}快速开始：${NC}"
 echo ""
 echo -e "  ${CYAN}1.${NC} 用 Obsidian 打开 vault："
 echo -e "     Obsidian → Open folder as vault → ${TARGET_DIR}"
@@ -159,9 +238,16 @@ echo ""
 echo -e "  ${CYAN}2.${NC} 放入第一份原始资料："
 echo -e "     cp your-file.md ${TARGET_DIR}/raw/meetings/"
 echo ""
-echo -e "  ${CYAN}3.${NC} 让 Agent 整理资料："
-echo -e "     请参考 templates/prompts.md 中的标准 Prompt 模板"
+echo -e "  ${CYAN}3.${NC} 让 Agent 整理（使用标准 Prompt）："
+echo -e "     请读取 ${TARGET_DIR}/raw/meetings/xxx.md，"
+echo -e "     在 wiki/ 下创建来源总结页和概念页，添加 [[...]] 双链"
 echo ""
 echo -e "  ${CYAN}4.${NC} 提交到 Git："
-echo -e "     git add ${TARGET_DIR} && git commit -m \"feat: init project wiki\""
+echo -e "     cd ${TARGET_DIR} && git add . && git commit -m \"feat: init project wiki\""
+echo ""
+echo -e "  ${CYAN}5.${NC} 知识库体检："
+echo -e "     bash scripts/check.sh ${TARGET_DIR}"
+echo ""
+echo -e "  ${CYAN}6.${NC} 统一命令（在项目根目录）："
+echo -e "     make -C ${TARGET_DIR} check"
 echo ""

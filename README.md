@@ -68,17 +68,63 @@ obsidian-project-wiki/
 ├── _meta.json            # Skill 元数据
 ├── scripts/
 │   ├── install.sh        # 一键初始化脚本
+│   ├── init-git.sh       # Git 初始化（monorepo/standalone/submodule）
+│   ├── update.sh         # 扫描 raw/ 新文件，生成 Agent 整理指令
+│   ├── sync.sh           # 自动 Git 提交 + 推送
 │   └── check.sh          # 知识库体检脚本
 ├── templates/
 │   ├── AGENTS.md         # 项目级 Agent 约定模板
 │   ├── README.md         # 项目 wiki README 模板
 │   ├── prompts.md        # 标准 Prompt 模板
 │   └── obsidian-config.json  # Obsidian 推荐配置
-└── examples/
-    └── sample-vault/     # 可直接打开的示例知识库
-        ├── raw/           # 示例原始资料
-        └── wiki/          # 示例整理后的知识
+├── examples/
+│   └── sample-vault/     # 可直接打开的示例知识库
+│       ├── raw/           # 示例原始资料
+│       └── wiki/          # 示例整理后的知识
+└── Makefile              # 统一命令入口
 ```
+
+## 自动化工作流
+
+除了手动操作，本 Skill 还提供完整的自动化脚本：
+
+### 初始化 → 整理 → 同步
+
+```bash
+# 1. 初始化项目知识库
+bash scripts/install.sh --project-name my-project
+
+# 2. 配置 Git（三种模式可选）
+bash scripts/init-git.sh docs/project-wiki --monorepo      # 作为项目仓库的一部分
+bash scripts/init-git.sh docs/project-wiki --standalone   # 独立仓库
+bash scripts/init-git.sh docs/project-wiki --submodule    # Git 子模块
+
+# 3. 放入 raw 资料后，扫描新文件并生成整理指令
+bash scripts/update.sh docs/project-wiki
+
+# 4. 同步到 Git（自动分析变更类型生成提交信息）
+bash scripts/sync.sh docs/project-wiki --push
+```
+
+### 知识库体检
+
+```bash
+# 生成体检报告
+bash scripts/check.sh docs/project-wiki --report wiki-health-report.md
+```
+
+### 统一命令（Makefile）
+
+vault 初始化后自带 Makefile：
+
+```bash
+cd docs/project-wiki
+make check    # 运行知识库体检
+make sync     # 提交并推送到 Git
+make status   # 查看 Git 状态
+```
+
+详见 `SKILL.md` 中的"自动化工作流"章节。
 
 ## 核心工作流
 

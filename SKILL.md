@@ -1,6 +1,6 @@
 ---
 name: obsidian-project-wiki
-version: 1.1.0
+version: 1.2.0
 description: |
   为任意项目搭建 Obsidian + AI 的“会进化”的项目知识库。
   通过 raw（原始资料）+ wiki（整理知识）+ AGENTS.md（Agent 约定）三层结构，
@@ -272,6 +272,84 @@ cp -r ~/.qoder/skills/obsidian-project-wiki/* .qoder/skills/obsidian-project-wik
 ```
 
 这样 Skill 会随项目一起提交，团队成员无需额外配置。
+
+## 自动化工作流
+
+本 Skill 提供一套自动化脚本，减少重复操作，让你专注于知识整理本身。
+
+### 脚本概览
+
+| 脚本 | 功能 | 用法 |
+|------|------|------|
+| `install.sh` | 一键初始化 vault | `bash install.sh --project-name <name>` |
+| `init-git.sh` | 为 vault 配置 Git | `bash init-git.sh --monorepo` / `--standalone` / `--submodule` |
+| `update.sh` | 扫描 raw/ 新文件，生成 Agent 整理指令 | `bash update.sh [vault-path]` |
+| `sync.sh` | 自动提交并推送 wiki 到 Git | `bash sync.sh --push` |
+| `check.sh` | 知识库体检，生成报告 | `bash check.sh --report report.md` |
+
+### 初始化 → 整理 → 同步 完整流程
+
+```bash
+# 1. 初始化项目知识库
+bash scripts/install.sh --project-name my-project
+
+# 2. 配置 Git（三种模式可选）
+bash scripts/init-git.sh docs/project-wiki --monorepo      # 作为项目仓库的一部分
+bash scripts/init-git.sh docs/project-wiki --standalone   # 独立仓库
+bash scripts/init-git.sh docs/project-wiki --submodule    # Git 子模块
+
+# 3. 放入 raw 资料
+cp meeting-notes.md docs/project-wiki/raw/meetings/
+
+# 4. 扫描新文件，生成整理指令
+bash scripts/update.sh docs/project-wiki
+# → 复制输出的 prompt，粘贴给 Agent 执行
+
+# 5. 同步到 Git
+bash scripts/sync.sh docs/project-wiki --push
+```
+
+### 统一命令入口（Makefile）
+
+vault 初始化后会自带一个 Makefile，提供统一命令：
+
+```bash
+cd docs/project-wiki
+
+make check    # 运行知识库体检
+make sync     # 提交并推送到 Git
+make status   # 查看 Git 状态
+```
+
+### 定期体检（建议每周/每月）
+
+```bash
+# 生成体检报告
+bash scripts/check.sh docs/project-wiki --report wiki-health-report.md
+
+# 查看报告
+cat wiki-health-report.md
+```
+
+体检报告包含：
+- 目录结构完整性检查
+- raw/wiki 文件数量统计
+- 过期文件（>90 天）清单
+- 孤立页面（无双向链接）清单
+- 重复文件名检测
+- 改进建议
+
+### 自动修复（实验性）
+
+```bash
+bash scripts/check.sh docs/project-wiki --fix
+```
+
+当前支持的自动修复：
+- 补全缺失的 .gitkeep 文件
+- 创建缺失的 .gitattributes（union 合并策略）
+
+> ⚠️ `--fix` 为实验性功能，执行前建议先运行 `check.sh` 查看将要修复的内容。
 
 ## 进阶用法
 

@@ -16,9 +16,44 @@ BOLD='\033[1m'
 NC='\033[0m'
 
 VAULT_DIR="${1:-docs/project-wiki}"
+REPORT_FILE=""
+FIX_MODE=false
 PASS_COUNT=0
 WARN_COUNT=0
 FAIL_COUNT=0
+
+# ---- 参数解析 ----
+shift 1 2>/dev/null || true
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --report)
+      REPORT_FILE="$2"
+      shift 2
+      ;;
+    --fix)
+      FIX_MODE=true
+      shift
+      ;;
+    -h|--help)
+      echo "用法：bash check.sh [vault-path] [选项]"
+      echo ""
+      echo "选项："
+      echo "  --report <file>  将体检报告输出到文件（Markdown 格式）"
+      echo "  --fix            尝试自动修复可修复的问题"
+      echo "  -h, --help       显示帮助信息"
+      exit 0
+      ;;
+    *)
+      echo -e "${RED}未知参数: $1${NC}"
+      exit 1
+      ;;
+  esac
+done
+
+# 默认报告文件
+if [[ -z "$REPORT_FILE" ]]; then
+  REPORT_FILE="/tmp/opw-check-report-$(date +%Y%m%d-%H%M%S).md"
+fi
 
 pass() { ((PASS_COUNT++)) || true; echo -e "  ${GREEN}✓ PASS${NC}  $1"; }
 warn() { ((WARN_COUNT++)) || true; echo -e "  ${YELLOW}⚠ WARN${NC}  $1"; }
@@ -200,6 +235,9 @@ TOTAL_ISSUES=$((WARN_COUNT + FAIL_COUNT))
 if [[ "$FAIL_COUNT" -gt 0 ]]; then
   echo -e "  ${RED}${BOLD}状态：需要修复${NC}"
   echo -e "  请优先处理失败项，然后重新运行本脚本。"
+  if [[ "$FIX_MODE" == true ]]; then
+    echo -e "  ${YELLOW}提示：使用 --fix 参数可尝试自动修复部分问题${NC}"
+  fi
 elif [[ "$WARN_COUNT" -gt 0 ]]; then
   echo -e "  ${YELLOW}${BOLD}状态：基本健康，有改进空间${NC}"
   echo -e "  建议逐项处理警告，提升知识库质量。"
@@ -207,4 +245,59 @@ else
   echo -e "  ${GREEN}${BOLD}状态：知识库健康${NC}"
   echo -e "  继续保持！记得每月运行一次体检。"
 fi
+
+# ---- 生成 Markdown 报告 ----
+echo ""
+echo -e "${CYAN}→ 生成体检报告：${REPORT_FILE}${NC}"
+
+cat > "$REPORT_FILE" << EOF
+# 知识库体检报告
+
+**Vault 路径**：${VAULT_DIR}  
+**检查时间**：$(date '+%Y-%m-%d %H:%M:%S')  
+**检查工具**：obsidian-project-wiki check.sh
+
+## 汇总
+
+| 指标 | 数量 |
+|------|------|
+| 通过 | ${PASS_COUNT} |
+| 警告 | ${WARN_COUNT} |
+| 失败 | ${FAIL_COUNT} |
+
+**总体状态**：$(if [[ "$FAIL_COUNT" -gt 0 ]]; then echo "需要修复"; elif [[ "$WARN_COUNT" -gt 0 ]]; then echo "基本健康"; else echo "知识库健康"; fi)
+
+## 文件统计
+
+- raw/ 文件数：${RAW_COUNT}
+- wiki/ 文件数：${WIKI_COUNT}
+
+## 建议
+
+$(if [[ "$FAIL_COUNT" -gt 0 ]]; then echo "1. 优先处理失败项"; fi)
+$(if [[ "$WARN_COUNT" -gt 0 ]]; then echo "2. 处理警告项，提升知识库质量"; fi)
+$(if [[ "$RAW_COUNT" -gt 0 && "$WIKI_COUNT" -eq 0 ]]; then echo "3. raw/ 有资料但 wiki/ 为空，建议尽快开始整理"; fi)
+$(if [[ "$STALE_RAW" -gt 0 ]]; then echo "4. raw/ 有过期文件（>${STALE_RAW} 个），建议归档或整理"; fi)
+$(if [[ "$ORPHAN_COUNT" -gt 0 ]]; then echo "5. wiki/ 有孤立页面（${ORPHAN_COUNT} 个），建议添加 [[...]] 双链"; fi)
+
+## 自动化建议
+
+运行以下命令保持知识库健康：
+
+\`\`\`bash
+# 每周体检
+bash scripts/check.sh ${VAULT_DIR}
+
+# 自动修复（实验性）
+bash scripts/check.sh ${VAULT_DIR} --fix
+
+# 同步到 Git
+bash scripts/sync.sh ${VAULT_DIR} --push
+\`\`\`
+
+---
+*由 obsidian-project-wiki 自动生成*
+EOF
+
+echo -e "  ${GREEN}✓${NC} 报告已保存"
 echo ""
