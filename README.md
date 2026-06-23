@@ -45,7 +45,7 @@ cp -r /path/to/obsidian-project-wiki/* ~/.qoder/skills/obsidian-project-wiki/
 # 如果 skillhub 仓库把本 Skill 放在 obsidian-project-wiki/ 子目录
 mkdir -p ~/.qoder/skills/obsidian-project-wiki
 cd ~/.qoder/skills/obsidian-project-wiki
-git clone https://github.com/jackeyunjie/skillhub.git .
+git clone https://github.com/jackeyunjie/obsidian-project-wiki.git .
 ```
 
 ## 文件结构

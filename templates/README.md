@@ -55,4 +55,4 @@ docs/project-wiki/
 
 本项目知识库基于 `obsidian-project-wiki` Skill：
 
-https://github.com/jackeyunjie/skillhub
+https://github.com/jackeyunjie/obsidian-project-wiki

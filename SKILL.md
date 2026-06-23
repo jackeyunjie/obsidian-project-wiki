@@ -6,7 +6,7 @@ description: |
   通过 raw（原始资料）+ wiki（整理知识）+ AGENTS.md（Agent 约定）三层结构，
   让项目决策、操作手册、架构知识随使用自然沉淀，可被团队复用。
 author: jackeyunjie
-repo: https://github.com/jackeyunjie/skillhub
+repo: https://github.com/jackeyunjie/obsidian-project-wiki
 ---
 
 # Obsidian Project Wiki
@@ -257,7 +257,7 @@ git push
 # 从 GitHub 安装本 Skill
 mkdir -p ~/.qoder/skills/obsidian-project-wiki
 cd ~/.qoder/skills/obsidian-project-wiki
-git clone https://github.com/jackeyunjie/skillhub.git .
+git clone https://github.com/jackeyunjie/obsidian-project-wiki.git .
 ```
 
 > 如果你的 skillhub 仓库包含多个 Skill，建议把本 Skill 放到 `obsidian-project-wiki/` 子目录下，然后 clone 到 `~/.qoder/skills/obsidian-project-wiki/`。
@@ -293,6 +293,6 @@ cp -r ~/.qoder/skills/obsidian-project-wiki/* .qoder/skills/obsidian-project-wik
 
 ## 参考资源
 
-- 本 Skill 仓库：https://github.com/jackeyunjie/skillhub
+- 本 Skill 仓库：https://github.com/jackeyunjie/obsidian-project-wiki
 - Obsidian 官方文档：https://help.obsidian.md/
 - 卡片盒笔记法 / Zettelkasten 方法论
