@@ -1,6 +1,6 @@
 ---
 name: obsidian-project-wiki
-version: 1.0.0
+version: 1.1.0
 description: |
   为任意项目搭建 Obsidian + AI 的“会进化”的项目知识库。
   通过 raw（原始资料）+ wiki（整理知识）+ AGENTS.md（Agent 约定）三层结构，
@@ -277,8 +277,21 @@ cp -r ~/.qoder/skills/obsidian-project-wiki/* .qoder/skills/obsidian-project-wik
 
 - **Obsidian Web Clipper**：把网页资料直接剪藏到 `raw/research/`
 - **对话导出**：将 Claude/Codex/Kimi 的有价值对话保存到 `raw/conversations/`，再让 Agent 整理
-- **定期体检**：每月跑一次“知识库体检” prompt，清理重复和孤立页面
+- **定期体检**：每月跑一次"知识库体检" prompt，或运行 `bash scripts/check.sh` 脚本
 - **模板化**：把常用的 wiki 页面结构存为 Obsidian 模板
+
+### 推荐 Obsidian 配置
+
+起步阶段建议使用默认设置，后续可按需安装以下插件（详见 `templates/obsidian-config.json`）：
+
+| 插件 | 用途 |
+|------|------|
+| **Dataview** | 用 DQL 语言查询 vault，自动统计文件、生成索引 |
+| **Templater** | 创建标准化 wiki 页面模板（来源页、ADR 页等） |
+| **Calendar** | 日历视图浏览按日期组织的会议纪要 |
+| **Obsidian Git** | 在 Obsidian 内直接 commit/push，方便团队同步 |
+
+> 第一次不要急着装插件，先保证空间干净、跑通一篇整理流程。
 
 ## 验收清单
 
@@ -290,6 +303,34 @@ cp -r ~/.qoder/skills/obsidian-project-wiki/* .qoder/skills/obsidian-project-wik
 - [ ] wiki 页面有来源页、概念页和双向链接
 - [ ] 能基于 wiki 回答一个项目具体问题
 - [ ] 有价值的新结论被回写到 wiki
+
+## 常见问题（FAQ）
+
+**Q: Obsidian 找不到 vault 怎么办？**
+A: 确认你打开的是 `docs/project-wiki/` 目录（而非其父目录）。在 Obsidian 中选择 **Open folder as vault** → 选择 `docs/project-wiki/`。
+
+**Q: Git 合并冲突导致 wiki 页面损坏怎么处理？**
+A: 先用 `git diff` 查看冲突标记（`<<<<<<<`），手动选择保留哪一版本。建议在 `.gitattributes` 中设置 `*.md merge=union` 让 Git 自动合并非冲突行。
+
+**Q: 多人协作时如何避免同时编辑同一个 wiki 页面？**
+A: 约定"谁整理谁负责"原则 — 每次整理前在对应 wiki 页面顶部加 `> 正在由 @xxx 编辑`，完成后移除。或使用 Obsidian Git 插件频繁 commit 减少冲突窗口。
+
+**Q: raw 资料是 PDF/图片怎么办？**
+A: Obsidian 支持内嵌 PDF 和图片。把文件放进 `raw/` 后，在 wiki 页面中用 `![[文件名.pdf]]` 引用。Agent 整理时可基于文件名和上下文描述内容。
+
+**Q: 知识库超过 1000 页后 Obsidian 变慢怎么办？**
+A: 1) 关闭不必要的插件（特别是 Graph View 的实时渲染）；2) 把已归档的 raw 文件移到 `raw/archived/` 并加入 `.gitignore`；3) 拆分大项目为多个 vault。
+
+## 故障排查
+
+**Agent 未遵守 AGENTS.md 约定**
+→ 确认 AGENTS.md 位于 vault 根目录（Agent 会从项目根目录的 `AGENTS.md` 或 `docs/project-wiki/AGENTS.md` 读取约定）。如果 Agent 仍不遵守，在 prompt 中显式引用：`请先阅读 docs/project-wiki/AGENTS.md 中的约定，然后...`。
+
+**双链显示为红色（目标页不存在）**
+→ 在 Obsidian 中搜索该链接名，确认是文件名拼写错误还是页面确实未创建。如果是未创建的页面，可以让 Agent 补充创建，或手动创建一个带占位内容的页面。
+
+**体检脚本报告孤立页面**
+→ 运行 `bash scripts/check.sh` 后，对每个孤立页面：1) 判断它是否应该被其他页面引用；2) 添加至少一个 `[[...]]` 链接到相关页面；3) 如果页面确实独立，可添加标签 `#standalone` 标注。
 
 ## 参考资源
 

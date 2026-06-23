@@ -14,7 +14,20 @@
 
 ## 快速安装
 
-### 项目级使用（推荐团队）
+### 一键安装（推荐）
+
+```bash
+# 克隆本仓库
+git clone https://github.com/jackeyunjie/obsidian-project-wiki.git
+cd obsidian-project-wiki
+
+# 运行安装脚本，自动创建目录结构并填充项目名
+bash scripts/install.sh --project-name your-project-name
+```
+
+安装脚本会自动创建 `docs/project-wiki/` 下的所有目录，复制模板文件并替换项目名占位符。
+
+### 项目级使用（手动）
 
 把本 Skill 复制到项目仓库：
 
@@ -26,23 +39,20 @@ cp -r /path/to/obsidian-project-wiki/* .qoder/skills/obsidian-project-wiki/
 然后初始化项目 wiki：
 
 ```bash
-mkdir -p docs/project-wiki/raw/{meetings,requirements,research,incidents,conversations}
-mkdir -p docs/project-wiki/wiki/{decisions,runbooks,architecture,conventions,patterns,onboarding}
-cp .qoder/skills/obsidian-project-wiki/templates/AGENTS.md docs/project-wiki/AGENTS.md
-cp .qoder/skills/obsidian-project-wiki/templates/README.md docs/project-wiki/README.md
+bash .qoder/skills/obsidian-project-wiki/scripts/install.sh --project-name your-project-name
 ```
 
 ### 全局使用
 
 ```bash
-mkdir -p ~/.qoder/skills/obsidian-project-wiki
-cp -r /path/to/obsidian-project-wiki/* ~/.qoder/skills/obsidian-project-wiki/
+bash scripts/install.sh --global
 ```
+
+Skill 将安装到 `~/.qoder/skills/obsidian-project-wiki`，之后可在任意项目中使用。
 
 ### 从 GitHub 安装
 
 ```bash
-# 如果 skillhub 仓库把本 Skill 放在 obsidian-project-wiki/ 子目录
 mkdir -p ~/.qoder/skills/obsidian-project-wiki
 cd ~/.qoder/skills/obsidian-project-wiki
 git clone https://github.com/jackeyunjie/obsidian-project-wiki.git .
@@ -54,10 +64,20 @@ git clone https://github.com/jackeyunjie/obsidian-project-wiki.git .
 obsidian-project-wiki/
 ├── SKILL.md              # Skill 主文件
 ├── README.md             # 本文件
+├── LICENSE               # MIT License
+├── _meta.json            # Skill 元数据
+├── scripts/
+│   ├── install.sh        # 一键初始化脚本
+│   └── check.sh          # 知识库体检脚本
 ├── templates/
 │   ├── AGENTS.md         # 项目级 Agent 约定模板
 │   ├── README.md         # 项目 wiki README 模板
-│   └── prompts.md        # 标准 Prompt 模板
+│   ├── prompts.md        # 标准 Prompt 模板
+│   └── obsidian-config.json  # Obsidian 推荐配置
+└── examples/
+    └── sample-vault/     # 可直接打开的示例知识库
+        ├── raw/           # 示例原始资料
+        └── wiki/          # 示例整理后的知识
 ```
 
 ## 核心工作流
@@ -73,6 +93,25 @@ raw/（原始资料）
 ## 更多信息
 
 详见 `SKILL.md`。
+
+## 示例体验
+
+本仓库包含一个可直接打开的示例 vault，展示 raw → wiki 的完整整理效果：
+
+1. 用 Obsidian 打开 `examples/sample-vault/` 作为 vault
+2. 浏览 `raw/meetings/` 中的原始会议纪要
+3. 查看 `wiki/` 中整理后的来源页、决策页、架构页
+4. 观察页面之间的 `[[...]]` 双向链接
+
+## 知识库体检
+
+使用内置体检脚本检查知识库健康状态：
+
+```bash
+bash scripts/check.sh docs/project-wiki
+```
+
+脚本会检查目录结构完整性、过期文件、孤立页面、重复文件名等，并输出结构化报告。
 
 ## License
 
