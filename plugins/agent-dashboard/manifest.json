@@ -1,0 +1,9 @@
+{
+  "id": "agent-dashboard",
+  "name": "Agent Dashboard",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "A minimal Obsidian dashboard for project wiki health and agent workflows.",
+  "author": "jackeyunjie",
+  "isDesktopOnly": false
+}

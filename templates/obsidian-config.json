@@ -1,0 +1,37 @@
+{
+  "_comment": "Obsidian 推荐配置",
+  "recommended_settings": {
+    "newFileLocation": "current",
+    "showUnsupportedFiles": true,
+    "alwaysUpdateLinks": true,
+    "newLinkFormat": "relative",
+    "useMarkdownLinks": false,
+    "showLineNumber": true,
+    "strictLineBreaks": false,
+    "readableLineLength": true
+  },
+  "recommended_plugins": [
+    {
+      "name": "Dataview",
+      "id": "dataview",
+      "description": "查询 raw/wiki/outputs 中的数据。"
+    },
+    {
+      "name": "Templater",
+      "id": "templater-obsidian",
+      "description": "生成来源页、ADR 页等标准模板。"
+    },
+    {
+      "name": "Obsidian Git",
+      "id": "obsidian-git",
+      "description": "在 Obsidian 内同步 Git。"
+    }
+  ],
+  "optional_plugins": [
+    {
+      "name": "Calendar",
+      "id": "calendar",
+      "description": "按时间浏览会议和研究资料。"
+    }
+  ]
+}

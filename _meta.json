@@ -1,0 +1,9 @@
+{
+  "name": "obsidian-project-wiki",
+  "version": "2.0.0",
+  "description": "为任意项目搭建 Obsidian + AI 的可进化项目知识库，并提供 ingest、health check、external fetch 和可选 Dashboard。",
+  "author": "jackeyunjie",
+  "repo": "https://github.com/jackeyunjie/obsidian-project-wiki",
+  "tags": ["obsidian", "knowledge-base", "project-management", "ai-agent", "wiki", "dashboard"],
+  "license": "MIT"
+}

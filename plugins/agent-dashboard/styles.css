@@ -1,0 +1,32 @@
+.agent-dashboard-root {
+  padding: 16px;
+}
+
+.agent-dashboard-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  margin-bottom: 16px;
+}
+
+.agent-dashboard-card,
+.agent-dashboard-panel {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--background-secondary);
+}
+
+.agent-dashboard-card small {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+}
+
+.agent-dashboard-card strong {
+  font-size: 1.4rem;
+}
+
+.agent-dashboard-panel h3 {
+  margin-top: 0;
+}
