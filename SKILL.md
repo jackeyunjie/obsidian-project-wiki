@@ -48,7 +48,11 @@ docs/project-wiki/
 ### 初始化
 
 ```bash
+# 基础安装
 bash scripts/install.sh --project-name my-project
+
+# 同时安装可选 Dashboard 插件并复制示例 vault
+bash scripts/install.sh --project-name my-project --with-dashboard --copy-examples
 ```
 
 ### 摄入 inbox

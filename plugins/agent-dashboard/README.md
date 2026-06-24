@@ -51,6 +51,21 @@ outputs/wiki-health.json
 - 手动刷新按钮
 - 一个固定的 runbook 提示区
 
+## 缺少健康报告时的空状态
+
+如果 `outputs/wiki-health.json` 不存在或读取失败，Dashboard 会：
+
+- 健康分显示 `N/A`
+- 指标区显示 `No metrics available yet.`
+- 额外显示一个黄色提示区，标题为“健康报告未生成”
+- 提示区会列出推荐运行的命令：
+
+```bash
+bash scripts/check.sh docs/project-wiki --json docs/project-wiki/outputs/wiki-health.json
+```
+
+点击“复制命令”按钮即可把命令复制到剪贴板。
+
 ## `wiki-health.json` 数据契约
 
 插件当前依赖的最小 JSON 结构如下：

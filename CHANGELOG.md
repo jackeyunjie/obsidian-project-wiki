@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.1.0 - 2026-06-24
+
+- `install.sh` now supports `--with-dashboard` to copy the optional Dashboard plugin directly into the vault.
+- `install.sh` now supports `--copy-examples` to copy `examples/sample-vault/` into the target project.
+- Install output now prints the absolute target path, next commands, and Dashboard/example locations.
+- README and SKILL docs updated to show direct install commands instead of manual copy steps.
+
 ## 2.0.0 - 2026-06-24
 
 - Added `ingest.sh` for `raw/inbox/` classification and intake flow.

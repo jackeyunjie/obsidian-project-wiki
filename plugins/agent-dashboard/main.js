@@ -2,6 +2,8 @@ const { Plugin, ItemView, WorkspaceLeaf, Notice, TFile } = require("obsidian");
 
 const VIEW_TYPE = "agent-dashboard-view";
 
+const DEFAULT_CHECK_COMMAND = "bash scripts/check.sh docs/project-wiki --json docs/project-wiki/outputs/wiki-health.json";
+
 class AgentDashboardView extends ItemView {
   constructor(leaf, plugin) {
     super(leaf);
@@ -26,7 +28,9 @@ class AgentDashboardView extends ItemView {
     root.empty();
     root.addClass("agent-dashboard-root");
 
-    const health = await this.plugin.readHealth();
+    const healthResult = await this.plugin.readHealth();
+    const health = healthResult.data;
+    const healthMissing = healthResult.missing;
     const recent = this.plugin.getRecentFiles();
     const stats = this.plugin.getVaultStats();
 
@@ -42,22 +46,51 @@ class AgentDashboardView extends ItemView {
     });
 
     const top = root.createDiv({ cls: "agent-dashboard-grid" });
-    this.card(top, "Health score", String(health.health_score ?? "N/A"));
+    this.card(top, "Health score", String(health?.health_score ?? "N/A"));
     this.card(top, "Inbox files", String(stats.inboxCount));
     this.card(top, "Wiki pages", String(stats.wikiCount));
     this.card(top, "Raw files", String(stats.rawCount));
 
+    if (healthMissing) {
+      const emptyState = root.createDiv({ cls: "agent-dashboard-empty-state" });
+      emptyState.createEl("h3", { text: "健康报告未生成" });
+      emptyState.createEl("p", {
+        text: "Dashboard 依赖 outputs/wiki-health.json。请先运行以下命令生成健康报告：",
+      });
+      const codeBlock = emptyState.createEl("pre", { cls: "agent-dashboard-command" });
+      codeBlock.createEl("code", { text: DEFAULT_CHECK_COMMAND });
+      const copyButton = emptyState.createEl("button", {
+        cls: "agent-dashboard-copy-command",
+        text: "复制命令",
+      });
+      copyButton.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(DEFAULT_CHECK_COMMAND);
+        new Notice("命令已复制到剪贴板");
+      });
+    }
+
     const actions = root.createDiv({ cls: "agent-dashboard-panel" });
     actions.createEl("h3", { text: "Runbook" });
-    ["1. Run ingest.sh", "2. Run update.sh", "3. Ask agent to organize wiki", "4. Run check.sh --json", "5. Sync to Git"].forEach((text) => {
+    [
+      "1. Run ingest.sh",
+      "2. Run update.sh",
+      "3. Ask agent to organize wiki",
+      "4. Run check.sh --json",
+      "5. Sync to Git",
+    ].forEach((text) => {
       actions.createEl("p", { text });
     });
 
     const metrics = root.createDiv({ cls: "agent-dashboard-panel" });
     metrics.createEl("h3", { text: "Health metrics" });
-    Object.entries(health.metrics || {}).forEach(([key, value]) => {
-      metrics.createEl("p", { text: `${key}: ${value}` });
-    });
+    const metricEntries = Object.entries(health?.metrics || {});
+    if (metricEntries.length === 0) {
+      metrics.createEl("p", { text: "No metrics available yet." });
+    } else {
+      metricEntries.forEach(([key, value]) => {
+        metrics.createEl("p", { text: `${key}: ${value}` });
+      });
+    }
 
     const recentPanel = root.createDiv({ cls: "agent-dashboard-panel" });
     recentPanel.createEl("h3", { text: "Recent files" });
@@ -114,14 +147,14 @@ module.exports = class AgentDashboardPlugin extends Plugin {
   async readHealth() {
     const file = this.app.vault.getAbstractFileByPath("outputs/wiki-health.json");
     if (!(file instanceof TFile)) {
-      return { metrics: {} };
+      return { data: { metrics: {} }, missing: true };
     }
     try {
       const raw = await this.app.vault.read(file);
-      return JSON.parse(raw);
+      return { data: JSON.parse(raw), missing: false };
     } catch (error) {
       new Notice(`Failed to read wiki-health.json: ${error.message}`);
-      return { metrics: {} };
+      return { data: { metrics: {} }, missing: true };
     }
   }
 

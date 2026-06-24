@@ -19,8 +19,20 @@
 ```bash
 git clone https://github.com/jackeyunjie/obsidian-project-wiki.git
 cd obsidian-project-wiki
+
+# 基础安装
 bash scripts/install.sh --project-name your-project-name
+
+# 同时安装可选的 Dashboard 插件，并把示例 vault 复制到项目里
+bash scripts/install.sh --project-name your-project-name --with-dashboard --copy-examples
 ```
+
+安装完成后，终端会打印：
+
+- 项目 wiki 的绝对路径
+- 下一步推荐命令
+- Dashboard 插件是否已安装
+- 示例 vault 的位置
 
 ## 升级后的结构
 
@@ -76,11 +88,21 @@ bash scripts/sync.sh docs/project-wiki --push
 
 ### 安装 Dashboard
 
-1. 初始化一个项目 wiki。
-2. 把 `plugins/agent-dashboard/` 下的 `main.js`、`styles.css`、`manifest.json` 复制到你的 vault 目录：
-   `.obsidian/plugins/agent-dashboard/`
-3. 在 Obsidian 中启用社区插件，并打开 `Agent Dashboard`。
-4. 先运行一次：
+推荐在安装时直接带上 Dashboard：
+
+```bash
+bash scripts/install.sh --project-name your-project-name --with-dashboard
+```
+
+这会直接把 `plugins/agent-dashboard/` 复制到 vault 的 `.obsidian/plugins/agent-dashboard/`。
+
+如果已经初始化过，也可以单独补装：
+
+```bash
+bash scripts/install.sh --target ./docs/project-wiki --with-dashboard
+```
+
+然后在 Obsidian 中启用社区插件，并打开 `Agent Dashboard`。首次使用前请先运行一次：
 
 ```bash
 bash scripts/check.sh docs/project-wiki --json docs/project-wiki/outputs/wiki-health.json
@@ -101,6 +123,14 @@ bash scripts/check.sh docs/project-wiki --json docs/project-wiki/outputs/wiki-he
 - `examples/sample-vault/outputs/wiki-health.json`
 - `examples/sample-vault/README.md`
 - `plugins/agent-dashboard/README.md`
+
+也可以初始化时直接复制示例到项目里：
+
+```bash
+bash scripts/install.sh --project-name your-project-name --copy-examples
+```
+
+复制后示例位于 `docs/project-wiki/examples/sample-vault/`。
 
 ## 核心原则
 

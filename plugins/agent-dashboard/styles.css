@@ -32,11 +32,44 @@
 }
 
 .agent-dashboard-card,
-.agent-dashboard-panel {
+.agent-dashboard-panel,
+.agent-dashboard-empty-state {
   border: 1px solid var(--background-modifier-border);
   border-radius: 8px;
   padding: 12px;
   background: var(--background-secondary);
+}
+
+.agent-dashboard-empty-state {
+  margin-bottom: 16px;
+  background: var(--background-modifier-form-field);
+}
+
+.agent-dashboard-empty-state h3 {
+  margin-top: 0;
+  color: var(--text-warning);
+}
+
+.agent-dashboard-command {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 6px;
+  background: var(--background-primary);
+  overflow-x: auto;
+}
+
+.agent-dashboard-command code {
+  font-family: var(--font-monospace);
+  font-size: 0.9em;
+}
+
+.agent-dashboard-copy-command {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: var(--interactive-normal);
+  color: var(--text-normal);
+  cursor: pointer;
 }
 
 .agent-dashboard-card small {

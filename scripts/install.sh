@@ -4,9 +4,29 @@ set -euo pipefail
 PROJECT_NAME=""
 TARGET_DIR=""
 GLOBAL_MODE=false
+WITH_DASHBOARD=false
+COPY_EXAMPLES=false
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd .. && pwd)"
 TEMPLATES_DIR="${SCRIPT_DIR}/templates"
+PLUGINS_DIR="${SCRIPT_DIR}/plugins"
+EXAMPLES_DIR="${SCRIPT_DIR}/examples"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  bash install.sh --project-name <name> [--target <path>] [--with-dashboard] [--copy-examples]
+  bash install.sh --global
+
+Options:
+  --project-name <name>   Name of the project (used in generated docs).
+  --target <path>         Where to create the project wiki. Default: ./docs/project-wiki
+  --with-dashboard        Also install the optional agent-dashboard plugin into the vault.
+  --copy-examples         Copy examples/sample-vault/ into the target for reference.
+  --global                Install this tool globally to ~/.qoder/skills/obsidian-project-wiki.
+  -h, --help              Show this help.
+EOF
+}
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -22,13 +42,21 @@ while [[ $# -gt 0 ]]; do
       GLOBAL_MODE=true
       shift
       ;;
+    --with-dashboard)
+      WITH_DASHBOARD=true
+      shift
+      ;;
+    --copy-examples)
+      COPY_EXAMPLES=true
+      shift
+      ;;
     -h|--help)
-      echo "Usage: bash install.sh --project-name <name> [--target <path>]"
-      echo "       bash install.sh --global"
+      usage
       exit 0
       ;;
     *)
       echo "Unknown argument: $1" >&2
+      usage >&2
       exit 1
       ;;
   esac
@@ -49,6 +77,9 @@ fi
 if [[ -z "${TARGET_DIR}" ]]; then
   TARGET_DIR="$(pwd)/docs/project-wiki"
 fi
+
+# Make TARGET_DIR absolute so later messages are unambiguous.
+TARGET_DIR="$(cd "$(dirname "${TARGET_DIR}")" && pwd)/$(basename "${TARGET_DIR}")"
 
 mkdir -p \
   "${TARGET_DIR}/raw/inbox" \
@@ -95,4 +126,61 @@ sync:
 EOF
 fi
 
-echo "Initialized project wiki at ${TARGET_DIR}"
+if [[ "${WITH_DASHBOARD}" == true ]]; then
+  DASHBOARD_TARGET="${TARGET_DIR}/.obsidian/plugins/agent-dashboard"
+  mkdir -p "${DASHBOARD_TARGET}"
+  cp "${PLUGINS_DIR}/agent-dashboard/main.js" \
+     "${PLUGINS_DIR}/agent-dashboard/styles.css" \
+     "${PLUGINS_DIR}/agent-dashboard/manifest.json" \
+     "${DASHBOARD_TARGET}/"
+fi
+
+if [[ "${COPY_EXAMPLES}" == true ]]; then
+  EXAMPLE_TARGET="${TARGET_DIR}/examples/sample-vault"
+  mkdir -p "${EXAMPLE_TARGET}"
+  cp -R "${EXAMPLES_DIR}/sample-vault/." "${EXAMPLE_TARGET}/"
+fi
+
+cat <<EOF
+
+Initialized project wiki at ${TARGET_DIR}
+
+Next steps:
+  cd ${TARGET_DIR}
+  bash scripts/ingest.sh ${TARGET_DIR}
+  bash scripts/update.sh ${TARGET_DIR}
+  bash scripts/check.sh ${TARGET_DIR} --json ${TARGET_DIR}/outputs/wiki-health.json
+EOF
+
+if [[ "${WITH_DASHBOARD}" == true ]]; then
+  cat <<EOF
+
+Dashboard plugin installed at:
+  ${TARGET_DIR}/.obsidian/plugins/agent-dashboard/
+
+Open Obsidian, enable community plugins, then run "Open Agent Dashboard".
+EOF
+else
+  cat <<EOF
+
+Optional: install the Dashboard plugin with:
+  bash scripts/install.sh --target ${TARGET_DIR} --with-dashboard
+
+Or copy it manually:
+  cp -R plugins/agent-dashboard ${TARGET_DIR}/.obsidian/plugins/agent-dashboard
+EOF
+fi
+
+if [[ "${COPY_EXAMPLES}" == true ]]; then
+  cat <<EOF
+
+Example vault copied to:
+  ${TARGET_DIR}/examples/sample-vault/
+EOF
+else
+  cat <<EOF
+
+See example inputs at:
+  ${SCRIPT_DIR}/examples/sample-vault/
+EOF
+fi
