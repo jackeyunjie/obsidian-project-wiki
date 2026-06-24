@@ -6,6 +6,7 @@ class AgentDashboardView extends ItemView {
   constructor(leaf, plugin) {
     super(leaf);
     this.plugin = plugin;
+    this.isRefreshing = false;
   }
 
   getViewType() {
@@ -29,7 +30,16 @@ class AgentDashboardView extends ItemView {
     const recent = this.plugin.getRecentFiles();
     const stats = this.plugin.getVaultStats();
 
-    root.createEl("h2", { text: "Project Wiki Dashboard" });
+    const header = root.createDiv({ cls: "agent-dashboard-header" });
+    header.createEl("h2", { text: "Project Wiki Dashboard" });
+    const refreshButton = header.createEl("button", {
+      cls: "agent-dashboard-refresh",
+      text: this.isRefreshing ? "Refreshing..." : "Refresh",
+    });
+    refreshButton.disabled = this.isRefreshing;
+    refreshButton.addEventListener("click", async () => {
+      await this.refresh();
+    });
 
     const top = root.createDiv({ cls: "agent-dashboard-grid" });
     this.card(top, "Health score", String(health.health_score ?? "N/A"));
@@ -55,6 +65,20 @@ class AgentDashboardView extends ItemView {
       recentPanel.createEl("p", { text: "No markdown files found." });
     } else {
       recent.forEach((file) => recentPanel.createEl("p", { text: file.path }));
+    }
+  }
+
+  async refresh() {
+    if (this.isRefreshing) {
+      return;
+    }
+    this.isRefreshing = true;
+    try {
+      await this.render();
+      new Notice("Agent Dashboard refreshed.");
+    } finally {
+      this.isRefreshing = false;
+      await this.render();
     }
   }
 

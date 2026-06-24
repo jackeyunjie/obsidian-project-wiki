@@ -22,6 +22,11 @@
 4. 在 Obsidian 中启用社区插件。
 5. 打开命令面板，执行 `Open Agent Dashboard`。
 
+打开后可以点击右上角的 `Refresh` 按钮，重新读取：
+
+- `outputs/wiki-health.json`
+- 最近更新文件列表
+
 ## 依赖的数据和目录
 
 插件假设你的 vault 使用 `obsidian-project-wiki` 推荐结构：
@@ -43,6 +48,7 @@ outputs/wiki-health.json
 - `raw/inbox/`、`raw/`、`wiki/` 文件数量
 - `wiki-health.json.metrics` 中的各项指标
 - 最近更新的 Markdown 文件
+- 手动刷新按钮
 - 一个固定的 runbook 提示区
 
 ## `wiki-health.json` 数据契约

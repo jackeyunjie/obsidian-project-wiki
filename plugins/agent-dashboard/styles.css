@@ -2,6 +2,28 @@
   padding: 16px;
 }
 
+.agent-dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.agent-dashboard-refresh {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: var(--interactive-normal);
+  color: var(--text-normal);
+  cursor: pointer;
+}
+
+.agent-dashboard-refresh:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
 .agent-dashboard-grid {
   display: grid;
   gap: 12px;
