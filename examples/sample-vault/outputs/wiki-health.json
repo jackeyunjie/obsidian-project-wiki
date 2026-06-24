@@ -1,0 +1,18 @@
+{
+  "vault_path": "examples/sample-vault",
+  "generated_at": "2026-06-24T07:40:00Z",
+  "health_score": 88,
+  "metrics": {
+    "raw_count": 2,
+    "wiki_count": 3,
+    "inbox_count": 0,
+    "stale_wiki_count": 0,
+    "orphan_count": 0,
+    "broken_link_count": 1,
+    "missing_frontmatter_count": 2,
+    "duplicate_title_count": 0,
+    "source_page_count": 1,
+    "source_coverage_pct": 33,
+    "frontmatter_coverage_pct": 33
+  }
+}

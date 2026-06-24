@@ -94,6 +94,13 @@ bash scripts/check.sh docs/project-wiki --json docs/project-wiki/outputs/wiki-he
 - 它面向桌面 Obsidian 工作流，优先展示状态与 runbook。
 - 核心逻辑仍然在 `scripts/` 目录，不在插件中重复实现。
 
+### 示例输入
+
+如果你想直接看 Dashboard 读取的输入长什么样，可以打开：
+
+- `examples/sample-vault/outputs/wiki-health.json`
+- `examples/sample-vault/README.md`
+
 ## 核心原则
 
 - Obsidian 只是入口，知识依旧落在 Markdown。
