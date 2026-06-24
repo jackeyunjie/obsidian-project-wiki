@@ -40,7 +40,7 @@ fi
 
 raw_count="$(find "${VAULT_DIR}/raw" -type f -name '*.md' | wc -l | tr -d ' ')"
 wiki_count="$(find "${VAULT_DIR}/wiki" -type f -name '*.md' | wc -l | tr -d ' ')"
-inbox_count="$(find "${VAULT_DIR}/raw/inbox" -type f 2>/dev/null | wc -l | tr -d ' ')"
+inbox_count="$(find "${VAULT_DIR}/raw/inbox" -type f ! -name '.gitkeep' 2>/dev/null | wc -l | tr -d ' ')"
 stale_count="$(find "${VAULT_DIR}/wiki" -type f -name '*.md' -mtime +90 2>/dev/null | wc -l | tr -d ' ')"
 
 orphan_count=0
@@ -55,35 +55,39 @@ while IFS= read -r file; do
 done < <(find "${VAULT_DIR}/wiki" -type f -name '*.md' | sort)
 
 declare -a titles
-for file in "${wiki_files[@]:-}"; do
-  if ! grep -q '\[\[' "${file}" 2>/dev/null; then
-    orphan_count=$((orphan_count + 1))
-  fi
-  if ! head -n 1 "${file}" | grep -q '^---'; then
-    missing_frontmatter_count=$((missing_frontmatter_count + 1))
-  fi
-  if grep -q '来源' "${file}" || grep -q 'source:' "${file}"; then
-    source_page_count=$((source_page_count + 1))
-  fi
-  title="$(grep -m1 '^# ' "${file}" | sed 's/^# //')"
-  if [[ -n "${title}" ]]; then
-    titles+=("${title}")
-  fi
-done
+if [[ "${#wiki_files[@]}" -gt 0 ]]; then
+  for file in "${wiki_files[@]}"; do
+    if ! grep -q '\[\[' "${file}" 2>/dev/null; then
+      orphan_count=$((orphan_count + 1))
+    fi
+    if ! head -n 1 "${file}" | grep -q '^---'; then
+      missing_frontmatter_count=$((missing_frontmatter_count + 1))
+    fi
+    if grep -q '来源' "${file}" || grep -q 'source:' "${file}"; then
+      source_page_count=$((source_page_count + 1))
+    fi
+    title="$(grep -m1 '^# ' "${file}" | sed 's/^# //')"
+    if [[ -n "${title}" ]]; then
+      titles+=("${title}")
+    fi
+  done
+fi
 
 if [[ "${#titles[@]}" -gt 0 ]]; then
   duplicate_title_count="$(printf '%s\n' "${titles[@]}" | sort | uniq -d | wc -l | tr -d ' ')"
 fi
 
-for file in "${wiki_files[@]:-}"; do
-  while IFS= read -r link; do
-    target_name="${link#[[}"
-    target_name="${target_name%]]}"
-    if ! find "${VAULT_DIR}/wiki" -type f -name "${target_name}.md" | grep -q .; then
-      broken_link_count=$((broken_link_count + 1))
-    fi
-  done < <(grep -o '\[\[[^]]\+\]\]' "${file}" || true)
-done
+if [[ "${#wiki_files[@]}" -gt 0 ]]; then
+  for file in "${wiki_files[@]}"; do
+    while IFS= read -r link; do
+      target_name="${link#[[}"
+      target_name="${target_name%]]}"
+      if ! find "${VAULT_DIR}/wiki" -type f -name "${target_name}.md" | grep -q .; then
+        broken_link_count=$((broken_link_count + 1))
+      fi
+    done < <(grep -o '\[\[[^]]\+\]\]' "${file}" || true)
+  done
+fi
 
 if [[ "${wiki_count}" -gt 0 ]]; then
   source_coverage_pct=$((source_page_count * 100 / wiki_count))
