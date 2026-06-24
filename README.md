@@ -100,6 +100,7 @@ bash scripts/check.sh docs/project-wiki --json docs/project-wiki/outputs/wiki-he
 
 - `examples/sample-vault/outputs/wiki-health.json`
 - `examples/sample-vault/README.md`
+- `plugins/agent-dashboard/README.md`
 
 ## 核心原则
 
