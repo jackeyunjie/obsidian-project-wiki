@@ -74,6 +74,26 @@ bash scripts/sync.sh docs/project-wiki --push
 - 最近更新文件
 - 常用操作按钮
 
+### 安装 Dashboard
+
+1. 初始化一个项目 wiki。
+2. 把 `plugins/agent-dashboard/` 下的 `main.js`、`styles.css`、`manifest.json` 复制到你的 vault 目录：
+   `.obsidian/plugins/agent-dashboard/`
+3. 在 Obsidian 中启用社区插件，并打开 `Agent Dashboard`。
+4. 先运行一次：
+
+```bash
+bash scripts/check.sh docs/project-wiki --json docs/project-wiki/outputs/wiki-health.json
+```
+
+这样 Dashboard 才能读取健康报告。
+
+### Dashboard 当前边界
+
+- 当前版本是静态操作面板，不直接执行 shell 脚本。
+- 它面向桌面 Obsidian 工作流，优先展示状态与 runbook。
+- 核心逻辑仍然在 `scripts/` 目录，不在插件中重复实现。
+
 ## 核心原则
 
 - Obsidian 只是入口，知识依旧落在 Markdown。
